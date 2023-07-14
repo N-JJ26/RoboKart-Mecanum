@@ -1,0 +1,176 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+
+@TeleOp(name="BowserMecanum", group="Iterative Opmode")
+
+public class BowserMecanum extends OpMode{
+    
+    private ElapsedTime runtime = new ElapsedTime();
+    private DcMotor leftMotorF = null;
+    private DcMotor leftMotorB = null;
+    private DcMotor rightMotorF = null;
+    private DcMotor rightMotorB = null;
+    public RevBlinkinLedDriver blinkin = null;
+    RevBlinkinLedDriver.BlinkinPattern pattern;
+    ColorSensor colorSensor;
+    Servo servo;
+    
+    double leftPowerF;
+    double leftPowerB;
+    double rightPowerF;
+    double rightPowerB;
+    double topSpeed;
+    double crawl;
+    boolean isTank = false;
+
+    @Override
+    public void init() {
+        telemetry.addData("Status", "Initialized");
+
+        leftMotorF  = hardwareMap.get(DcMotor.class, "leftMotorF");
+        leftMotorB = hardwareMap.get(DcMotor.class, "leftMotorB");
+        rightMotorF = hardwareMap.get(DcMotor.class, "rightMotorF");
+        rightMotorB = hardwareMap.get(DcMotor.class, "rightMotorB");
+        blinkin = hardwareMap.get(RevBlinkinLedDriver.class,"blinkin");
+        colorSensor = hardwareMap.get(ColorSensor.class,"colorSensor");
+        servo = hardwareMap.get(Servo.class,"servo");
+        
+        leftMotorF.setDirection(DcMotor.Direction.REVERSE);
+        leftMotorB.setDirection(DcMotor.Direction.REVERSE);
+        rightMotorF.setDirection(DcMotor.Direction.FORWARD);
+        rightMotorB.setDirection(DcMotor.Direction.FORWARD);
+
+        leftMotorF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftMotorB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightMotorF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightMotorB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        telemetry.addData("Status", "Initialized");
+    }
+
+    @Override
+    public void init_loop() {
+    }
+
+    @Override
+    public void start() {
+        runtime.reset();
+    }
+
+    
+    @Override
+    public void loop() {
+        
+        if (gamepad1.dpad_up) {
+
+            isTank = true;
+
+        }
+
+        if (gamepad1.dpad_down) {
+
+            isTank = false;
+
+        }
+
+        if (!isTank) {
+
+            double drive = -gamepad1.left_stick_y;
+            double turn = gamepad1.right_stick_x;
+            leftPowerF = ((drive + turn) * topSpeed);
+            leftPowerB = ((drive + turn) * topSpeed);
+            rightPowerF = ((drive - turn) * topSpeed);
+            rightPowerB = ((drive - turn) * topSpeed);
+
+        }
+
+        if (isTank) {
+
+            leftPowerF  = -gamepad1.left_stick_y ;
+            leftPowerB  = -gamepad1.left_stick_y ;
+            rightPowerF = -gamepad1.right_stick_y ;
+            rightPowerB = -gamepad1.right_stick_y ;
+
+        }
+        
+        if (gamepad1.right_trigger > 0) {
+
+            leftPowerF = gamepad1.right_trigger * 0.5;
+            leftPowerB = -gamepad1.right_trigger * 0.5;
+            rightPowerF = -gamepad1.right_trigger * 0.5;
+            rightPowerB = gamepad1.right_trigger * 0.5;
+            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+
+        }
+
+        if (gamepad1.left_trigger > 0) {
+
+            leftPowerF = -gamepad1.left_trigger * 0.5;
+            leftPowerB = gamepad1.left_trigger * 0.5;
+            rightPowerF = gamepad1.left_trigger * 0.5;
+            rightPowerB = -gamepad1.left_trigger * 0.5;
+            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+
+        }
+        
+        if (leftPowerF > 0 && leftPowerB > 0 && rightPowerF > 0 && rightPowerB > 0) {
+            
+            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            
+        }
+        
+        if (leftPowerF == 0 && leftPowerB == 0 && rightPowerF == 0 && rightPowerB == 0) {
+            
+            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+
+        }
+        
+        if (leftPowerF < 0 && leftPowerB < 0 && rightPowerF < 0 && rightPowerB < 0) {
+            
+            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            
+        }
+        
+        if (colorSensor.red() <= 400 && colorSensor.red() >= 260 && colorSensor.green() <= 250 && colorSensor.blue() <= 150) {
+            
+            topSpeed = 0.2;
+            
+        }else if (colorSensor.green() <= 350 && colorSensor.green() >= 210 && colorSensor.blue() <= 250 && colorSensor.red() <= 110) {
+            
+            topSpeed = 0.8;
+            
+        }else {
+            
+            topSpeed = 0.6;
+            
+        }
+
+        leftMotorF.setPower(leftPowerF);
+        leftMotorB.setPower(leftPowerB);
+        rightMotorF.setPower(rightPowerF);
+        rightMotorB.setPower(rightPowerB);
+
+        telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("isTank", isTank);
+        telemetry.addData("topSpeed", topSpeed);
+        telemetry.addData("red", colorSensor.red());
+        telemetry.addData("green", colorSensor.green());
+        telemetry.addData("blue", colorSensor.blue());
+        
+    }
+    
+    @Override
+    public void stop() {
+    }
+}
