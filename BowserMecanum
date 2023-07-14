@@ -8,9 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 @TeleOp(name="BowserMecanum", group="Iterative Opmode")
 
@@ -88,10 +85,10 @@ public class BowserMecanum extends OpMode{
 
             double drive = -gamepad1.left_stick_y;
             double turn = gamepad1.right_stick_x;
-            leftPowerF = ((drive + turn) * topSpeed);
-            leftPowerB = ((drive + turn) * topSpeed);
-            rightPowerF = ((drive - turn) * topSpeed);
-            rightPowerB = ((drive - turn) * topSpeed);
+            leftPowerF = ((drive + turn) * topSpeed) + gamepad1.right_trigger * 0.5;
+            leftPowerB = ((drive + turn) * topSpeed) - gamepad1.right_trigger * 0.5;
+            rightPowerF = ((drive - turn) * topSpeed) - gamepad1.right_trigger * 0.5;
+            rightPowerB = ((drive - turn) * topSpeed) + gamepad1.right_trigger * 0.5;
 
         }
 
@@ -101,26 +98,6 @@ public class BowserMecanum extends OpMode{
             leftPowerB  = -gamepad1.left_stick_y ;
             rightPowerF = -gamepad1.right_stick_y ;
             rightPowerB = -gamepad1.right_stick_y ;
-
-        }
-        
-        if (gamepad1.right_trigger > 0) {
-
-            leftPowerF = gamepad1.right_trigger * 0.5;
-            leftPowerB = -gamepad1.right_trigger * 0.5;
-            rightPowerF = -gamepad1.right_trigger * 0.5;
-            rightPowerB = gamepad1.right_trigger * 0.5;
-            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-
-        }
-
-        if (gamepad1.left_trigger > 0) {
-
-            leftPowerF = -gamepad1.left_trigger * 0.5;
-            leftPowerB = gamepad1.left_trigger * 0.5;
-            rightPowerF = gamepad1.left_trigger * 0.5;
-            rightPowerB = -gamepad1.left_trigger * 0.5;
-            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
 
         }
         
