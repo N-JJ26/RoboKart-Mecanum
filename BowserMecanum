@@ -85,10 +85,10 @@ public class BowserMecanum extends OpMode{
 
             double drive = -gamepad1.left_stick_y;
             double turn = gamepad1.right_stick_x;
-            leftPowerF = ((drive + turn) * topSpeed) + gamepad1.left_stick_x;
-            leftPowerB = ((drive + turn) * topSpeed) - gamepad1.left_stick_x;
-            rightPowerF = ((drive - turn) * topSpeed) - gamepad1.left_stick_x;
-            rightPowerB = ((drive - turn) * topSpeed) + gamepad1.left_stick_x;
+            leftPowerF = ((drive + turn) * topSpeed) + gamepad1.left_trigger - gamepad1.right_trigger;
+            leftPowerB = ((drive + turn) * topSpeed) - gamepad1.left_trigger + gamepad1.right_trigger;
+            rightPowerF = ((drive - turn) * topSpeed) - gamepad1.left_trigger + gamepad1.right_trigger;
+            rightPowerB = ((drive - turn) * topSpeed) + gamepad1.left_trigger - gamepad1.right_trigger;
 
         }
 
